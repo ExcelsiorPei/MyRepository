@@ -33,11 +33,23 @@
         center: [108.95000,34.26667],
         zoom: 11
       });
+    //添加渲染器  
+      var pointRenderer={
+          type:"simple",
+          symbol:{
+              type:"simple-marker",
+              color:[255,0,255],
+              outline:{
+                color:"#00FFFF"
+              }
+          }
+      }
     //添加图层数据
       var sample_point = new FeatureLayer({
-          url:"https://services5.arcgis.com/9KWvMv6plnDEz1Jd/arcgis/rest/services/chanba_sample/FeatureServer"
+          url:"https://services5.arcgis.com/9KWvMv6plnDEz1Jd/arcgis/rest/services/chanba_sample/FeatureServer",
+          renderer:pointRenderer
       });
-
+   
       map.add(sample_point);
     });
   </script>
