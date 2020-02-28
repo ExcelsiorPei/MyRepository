@@ -20,8 +20,9 @@
     //加载模块
       "esri/Map",
       "esri/views/MapView",
+      "esri/widgets/BasemapToggle",
       "esri/layers/FeatureLayer"
-    ], function(Map, MapView,FeatureLayer) {
+    ], function(Map, MapView,BasemapToggle,FeatureLayer) {
     //添加底图
       var map = new Map({
         basemap: "topo-vector"
@@ -33,7 +34,13 @@
         center: [108.95000,34.26667],
         zoom: 11
       });
-    //添加渲染器  
+      //添加地图切换toggle
+      var toggle = new BasemapToggle({
+        view:view,
+        nextBasemap:"hybrid"
+      });
+      view.ui.add(toggle,"top-right");
+    //添加数据渲染器  
       var pointRenderer={
           type:"simple",
           symbol:{
@@ -44,10 +51,59 @@
               }
           }
       }
+    //添加弹出窗口
+      var popupTables = {
+        
+        content: [{
+          title:"{地点}",
+          type:"fields",
+          fieldInfos:[
+            {
+              fieldName:"地点",
+              label:"地点",
+              visible:true,
+              format: null,
+              stringFieldOption:"text-box"
+            },
+            {
+              fieldName:"pH",
+              label:"pH",
+              visible:true,
+              format: {
+                places:2,
+                digitSeperator:true
+              },
+              stringFieldOption:"text-box"
+            },
+            {
+              fieldName:"ORP",
+              label:"ORP",
+              visible:true,
+              format: {
+                places:2,
+                digitSeperator:true
+              },
+              stringFieldOption:"text-box"
+            },
+            {
+              fieldName:"EC",
+              label:"EC",
+              visible:true,
+              format: {
+                places:2,
+                digitSeperator:true
+              },
+              stringFieldOption:"text-box"
+            },
+          ]
+        }]
+      }
     //添加图层数据
       var sample_point = new FeatureLayer({
-          url:"https://services5.arcgis.com/9KWvMv6plnDEz1Jd/arcgis/rest/services/chanba_sample/FeatureServer",
-          renderer:pointRenderer
+          url:"https://services5.arcgis.com/9KWvMv6plnDEz1Jd/arcgis/rest/services/chanba_sample/FeatureServer/0?token=CCxbC2bEvOqJVDZQnNsg_Oa_ue5ydyaojs0l8vV5G1XaJnrX3qIwXihtJb2SrcVU1kXhdSojIPtJPG4k2KP1MNTQBX_CIFu2q9LQ7zh8YAa2SSea-cADmSTqkwmR5GMj17YjST9ZOuDW7g1DwH2m0wci17s_dzmRGJOZchCZxJrbCPr9Y8prf2PxTYRsVML8YDrJNXoxOk8Ms6-AVizu3mhmOrQgaih-W5kKDi1P-IY.",
+          renderer:pointRenderer,
+          outFields:["地点","pH"],
+          popupTemplate:popupTables
       });
    
       map.add(sample_point);
