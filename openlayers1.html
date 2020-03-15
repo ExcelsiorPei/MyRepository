@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>openlayers 地图实例</title>
+    <link rel="stylesheet" href="v3.20.1-dist/v3.20.1-dist/ol.css" type="text/css"/>
+    <script type="text/javascript" src="v3.20.1-dist/v3.20.1-dist/ol-debug.js" charset="utf-8"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%;height: 650px;"></div>
+    <div id="navigate-container">
+        <input type="button" onclick="zoomIn();" value="放大">
+        <input type="button" onclick="zoomOut()" value="缩小">
+        <input type="button" onclick="removeLeft();" value="左移">
+        <input type="button" onclick="removeRight();" value="右移">
+    </div>
+    <script>
+        var mapview = new ol.View({
+                center:ol.proj.transform([108.95000,34.1], 'EPSG:4326', 'EPSG:3857'),//改变地图投影 EPSG:4326 WGS84 EPSG:3857 Web Mercator
+                zoom: 10,
+                //限制地图缩放级别10-16
+                minZoom: 10,
+                maxZoom: 16,
+                projection: 'EPSG:3857'//添加投影坐标系
+        })
+        var map = new ol.Map({
+            layers:[
+                new ol.layer.Tile({source: new ol.source.OSM()}),//osm底图
+                new ol.layer.Tile({source: new ol.source.TileWMS({
+                    url: 'http://localhost:8080/geoserver/test/wms',//url在geoserver->layer Preview->找到对应的图层->点击openlayers打开预览，地址栏里“server=”之前的url
+                    params: {'LAYERS': 'test:xian1'}//图层是geoserver里面的图层name
+                })})
+            ],
+            view: mapview,
+            target: 'map',
+            controls: ol.control.defaults({
+                attributionOptions:({
+                    collapsible: false
+                })
+            }),
+            logo: {src: 'openlayers3.jpg', href:'openlayers3.jpg'}
+        })
+        function zoomIn() {
+            mapview.animate({zoom: mapview.getZoom() + 0.5});
+        }
+        function zoomOut() {
+            mapview.animate({zoom: mapview.getZoom() - 0.5});
+        }
+        function removeLeft() {
+            var mapcenter = mapview.getCenter();//获取地图中心
+            mapcenter[0] -= 0.5;//设置新的中心
+            mapview.animate({center: mapcenter});//动画处理
+        }
+        function removeRight() {
+            var mapcenter = mapview.getCenter();
+            mapcenter[0] += 0.5;
+            mapview.animate({center: mapcenter});
+        }
+    </script>
+</body>
+</html>
