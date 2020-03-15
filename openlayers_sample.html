@@ -14,8 +14,23 @@
         <input type="button" onclick="zoomOut()" value="缩小">
         <input type="button" onclick="removeLeft();" value="左移">
         <input type="button" onclick="removeRight();" value="右移">
+        <input type="radio" name="mapSource" checked="checked" onclick="switchToOSM()" id="">OpenStreetMap
+        <input type="radio" name="mapSource" onclick="switchToBingMap()" id="">BingMap
     </div>
     <script>
+        var osmLayer = new ol.layer.Tile({source: new ol.source.OSM()});
+        var bingMapLayer = new ol.layer.Tile({
+            source: new ol.source.BingMaps({
+                key: 'AkjzA7OhS4MIBjutL21bkAop7dc41HSE0CNTR5c6HJy8JKc7U9U9RveWJrylD3XJ',
+                imagerySet: 'Road'
+            })
+        });
+        var geoServerLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/test/wms',//url在geoserver->layer Preview->找到对应的图层->点击openlayers打开预览，地址栏里“server=”之前的url
+                params: {'LAYERS': 'test:xian1'}//图层是geoserver里面的图层name
+            })
+        });
         var mapview = new ol.View({
                 center:ol.proj.transform([108.95000,34.1], 'EPSG:4326', 'EPSG:3857'),//改变地图投影 EPSG:4326 WGS84 EPSG:3857 Web Mercator
                 zoom: 10,
@@ -26,11 +41,8 @@
         })
         var map = new ol.Map({
             layers:[
-                new ol.layer.Tile({source: new ol.source.OSM()}),//osm底图
-                new ol.layer.Tile({source: new ol.source.TileWMS({
-                    url: 'http://localhost:8080/geoserver/test/wms',//url在geoserver->layer Preview->找到对应的图层->点击openlayers打开预览，地址栏里“server=”之前的url
-                    params: {'LAYERS': 'test:xian1'}//图层是geoserver里面的图层name
-                })})
+                osmLayer,//osm底图
+                geoServerLayer
             ],
             view: mapview,
             target: 'map',
@@ -57,6 +69,19 @@
             mapcenter[0] += 0.5;
             mapview.animate({center: mapcenter});
         }
+        function switchToOSM(){
+            //先移除当前地图
+            map.removeLayer(map.getLayers());
+            //再添加底图，注意每次都添加在最上层
+            map.addLayer(osmLayer);
+            map.addLayer(geoServerLayer);
+        }
+        function switchToBingMap() {
+            map.removeLayer(map.getLayers());
+            map.addLayer(bingMapLayer);
+            map.addLayer(geoServerLayer);
+        }
+
     </script>
 </body>
 </html>
