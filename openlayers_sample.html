@@ -101,7 +101,7 @@
             map.addLayer(osmLayer);
             map.addLayer(geojsonLayer);
         }
-        //切换底图为bingmap
+        //切换底图为Googlemap
         function switchToBingMap() {
             map.removeLayer(map.getLayers());
             map.addLayer(googlemapLayer);
@@ -109,9 +109,28 @@
         }
         
         //添加函数：点击地图显示坐标
-        map.on('singleclick', function(e){
-            alert(ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326'));
-    })
+    //     map.on('click', function(e){
+    //         alert(ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326'));
+    // })
+
+        //添加绘制线所使用的layer
+        var lineLayer = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'red',
+                    size: 1
+                })
+            })
+        })
+        //map中添加layer
+        map.addLayer(lineLayer);
+        //添加绘图的交互类
+        map.addInteraction(new ol.interaction.Draw({
+            type: 'LineString',
+            source: lineLayer.getSource()//注意设置source，这样绘制好的线，就会添加到这个source里
+        }));
+
     </script>
 </body>
 </html>
