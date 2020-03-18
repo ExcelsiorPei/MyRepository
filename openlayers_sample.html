@@ -15,30 +15,31 @@
         <input type="button" onclick="removeLeft();" value="左移">
         <input type="button" onclick="removeRight();" value="右移">
         <input type="radio" name="mapSource" checked="checked" onclick="switchToOSM()" id="">OpenStreetMap
-        <input type="radio" name="mapSource" onclick="switchToBingMap()" id="">BingMap
+        <input type="radio" name="mapSource" onclick="switchToBingMap()" id="">GoogleMap
     </div>
     <script>
+        //添加osm底图
         var osmLayer = new ol.layer.Tile({source: new ol.source.OSM()});
-        var bingMapLayer = new ol.layer.Tile({
-            source: new ol.source.BingMaps({
-                key: 'AkjzA7OhS4MIBjutL21bkAop7dc41HSE0CNTR5c6HJy8JKc7U9U9RveWJrylD3XJ',
-                imagerySet: 'Road'
+        //添加谷歌影像底图
+        var googlemapLayer = new ol.layer.Tile({
+            source: new ol.source.TileImage({
+                url: 'http://mt2.google.cn/vt/lyrs=y&hl=zh-CN&gl=CN&src=app&x={x}&y={y}&z={z}&s=G'
             })
-        });
-        
+        })
+        //以wms方式使用geoserver中的矢量
         var geoServerLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
                 url: 'http://localhost:8080/geoserver/test/wms',//url在geoserver->layer Preview->找到对应的图层->点击openlayers打开预览，地址栏里“server=”之前的url
                 params: {'LAYERS': 'test:xian1'}//图层是geoserver里面的图层name
             })
         });
-        
+        //以geojson方式使用geoserver中的矢量
         var geojsonLayer = new ol.layer.Vector({
             source: new ol.source.Vector({
                 url: 'xian1.geojson',
                 format: new ol.format.GeoJSON()
             }),
-            style: new ol.style.Style({
+            style: new ol.style.Style({//添加矢量样式
                 image: new ol.style.Circle({
                     radius: 6,
                     stroke: new ol.style.Stroke({
@@ -51,17 +52,16 @@
                 })
             })
         });
-
+        //地图视图view
         var mapview = new ol.View({
                 center:ol.proj.transform([108.95000,34.1], 'EPSG:4326', 'EPSG:3857'),//改变地图投影 EPSG:4326 WGS84 EPSG:3857 Web Mercator
-                zoom: 10,
-                
-                projection: 'EPSG:3857'//添加投影坐标系web Mercator
-        })
+                zoom: 10
+                //projection: 'EPSG:3857' 默认坐标系为投影坐标系web Mercator
+        });
+        //地图“外壳”map，用来把view、layer等元素组织在一起
         var map = new ol.Map({
             layers:[
                 osmLayer,//osm底图
-                
                 geojsonLayer
             ],
             view: mapview,
@@ -73,35 +73,45 @@
             }),
             logo: {src: 'openlayers3.jpg', href:'openlayers3.jpg'}
         })
+        //地图放大函数
         function zoomIn() {
             mapview.animate({zoom: mapview.getZoom() + 0.5});
         }
+        //地图缩小函数
         function zoomOut() {
             mapview.animate({zoom: mapview.getZoom() - 0.5});
         }
+        //地图左移函数
         function removeLeft() {
             var mapcenter = mapview.getCenter();//获取地图中心
             mapcenter[0] -= 10000;//设置新的中心,在Web Mercator下移动的距离单位是米不是度，所以数值要特别大要不然没有效果
             mapview.animate({center: mapcenter});//动画处理
         }
+        //地图右移函数
         function removeRight() {
             var mapcenter = mapview.getCenter();
             mapcenter[0] += 10000;
             mapview.animate({center: mapcenter});
         }
+        //切换底图为osm
         function switchToOSM(){
             //先移除当前地图
             map.removeLayer(map.getLayers());
             //再添加底图，注意每次都添加在最上层
             map.addLayer(osmLayer);
-            map.addLayer(geoServerLayer);
+            map.addLayer(geojsonLayer);
         }
+        //切换底图为bingmap
         function switchToBingMap() {
             map.removeLayer(map.getLayers());
-            map.addLayer(bingMapLayer);
-            map.addLayer(geoServerLayer);
+            map.addLayer(googlemapLayer);
+            map.addLayer(geojsonLayer);
         }
-
+        
+        //添加函数：点击地图显示坐标
+        map.on('singleclick', function(e){
+            alert(ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326'));
+    })
     </script>
 </body>
 </html>
