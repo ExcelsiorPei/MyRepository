@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #tsb {
+            height: 100px;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div id="tsb"></div>
+        <p>
+            <input type="range" min="0" max="255" value="0" id="box1">
+            <span id="R">0</span>
+        </p>
+        <p>
+            <input type="range" min="0" max="255" value="0" id="box2">
+            <span id="G">0</span>
+        </p>
+        <p>
+            <input type="range" min="0" max="255" value="0" id="box3">
+            <span id="B">0</span>
+        </p>
+    </div>
+    <script>
+        var box1 = document.getElementById("box1");
+        var box2 = document.getElementById("box2");
+        var box3 = document.getElementById("box3");
+        var R = document.getElementById("R");
+        var G = document.getElementById("G");
+        var B = document.getElementById("B");
+        var a = 0, b = 0, c = 0;
+        var tsb = document.getElementById("tsb");
+        box1.oninput = function(){
+            R.innerText = box1.value;
+            a = box1.value;
+            tsb.style.background = "rgb("+a+","+b+","+c+")";
+        }
+        box2.oninput = function(){
+            G.innerText = box2.value;
+            b = box2.value;
+            tsb.style.background = "rgb("+a+","+b+","+c+")";
+        }
+        box3.oninput = function(){
+            B.innerText = box3.value;
+            c = box3.value;
+            tsb.style.background = "rgb("+a+","+b+","+c+")";
+        }
+    </script>
+</body>
+</html>
